@@ -169,9 +169,9 @@ async def intent_router_node(state: State) -> State:
 async def cyber_node(state: State) -> State:
     logger.info("Node [cyber_node]: Processing IP threat analysis.")
     # Extract IP using regex
-    ip_match = re.search(r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}', state["translated_query"])
+    ip_match = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', state["translated_query"])
     if ip_match:
-        ip = ip_match.group(0)
+        ip = ip_match.group(0).strip()
         # Call the tool directly
         result = analyze_threat_ip.invoke({"ip_address": ip})
     else:
@@ -179,7 +179,13 @@ async def cyber_node(state: State) -> State:
         
     return {
         **state,
-        "analytical_summary": result
+        "analytical_summary": result,
+        "all_sql_results": [[]],
+        "all_generated_sql": ["CYBER_INTEL"],
+        "all_pagination": [{"has_more": False}],
+        "sql_results": [],
+        "generated_sql": "CYBER_INTEL",
+        "sql_error": ""
     }
 
 async def chat_response_node(state: State) -> State:
@@ -635,6 +641,8 @@ async def translation_output_node(state: State) -> State:
 def route_intent(state: State) -> str:
     if state.get("intent") == "CHAT":
         return "chat_response"
+    elif state.get("intent") == "CYBER":
+        return "cyber"
     return "query_splitter"
 
 def should_continue(state: State) -> str:
@@ -661,6 +669,7 @@ workflow = StateGraph(State)
 workflow.add_node("translation_input", translation_input_node)
 workflow.add_node("intent_router", intent_router_node)
 workflow.add_node("chat_response", chat_response_node)
+workflow.add_node("cyber", cyber_node)
 workflow.add_node("query_splitter", query_splitter_node)
 workflow.add_node("generate_sql", generate_sql_node)
 workflow.add_node("execute_sql", execute_sql_node)
@@ -671,8 +680,9 @@ workflow.add_node("translation_output", translation_output_node)
 
 workflow.add_edge(START, "translation_input")
 workflow.add_edge("translation_input", "intent_router")
-workflow.add_conditional_edges("intent_router", route_intent, {"chat_response": "chat_response", "query_splitter": "query_splitter"})
+workflow.add_conditional_edges("intent_router", route_intent, {"chat_response": "chat_response", "cyber": "cyber", "query_splitter": "query_splitter"})
 workflow.add_edge("chat_response", "translation_output")
+workflow.add_edge("cyber", "translation_output")
 
 workflow.add_edge("query_splitter", "generate_sql")
 workflow.add_edge("generate_sql", "execute_sql")
