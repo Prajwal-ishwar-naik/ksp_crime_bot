@@ -1,136 +1,62 @@
-# 🛡️ KSP Crime Bot (Aloka Intelligence)
+# Aloka Intelligence
 
-> **Advanced AI-Powered State Intelligence & Investigative Assistant for Karnataka State Police**
+Aloka Intelligence is an AI assistant developed for the Karnataka State Police. It provides database query generation, multilingual support, cyber threat analysis, and automated data insights.
 
-Aloka Intelligence is a hybrid AI assistant built with **LangGraph**, **FastAPI**, **Groq LLM**, and **React**. It operates across a two-lane data architecture (Public Intelligence vs. Secure Local Database Records), supporting natural language SQL query generation, automated self-correction, multilingual translation (Kannada/English), threat IP cyber intelligence, and dynamic data visualization.
+## LangGraph Workflow Flowchart
 
----
+![LangGraph Execution Flow](docs/assets/langgraph_flow.png)
 
-## 📐 LangGraph Workflow & State Graph
+## Overview
 
-The core backend intelligence is powered by a multi-node **LangGraph StateGraph** defined in `backend/app/agent.py`. The diagram below illustrates the complete execution flow from user query input to final analytical synthesis and chart generation:
+The application features a hybrid architecture with two main data pathways:
+- Public Intelligence: Handles general inquiries, definitions, and conversational responses.
+- Secure Database Records: Converts natural language queries into read-only SQL commands to query local police database records.
 
-![LangGraph Execution Flow Diagram](docs/assets/langgraph_flow.png)
+## Key Capabilities
 
-### 📊 Node Execution Flowchart (Mermaid)
+- Natural Language to SQL query generation
+- Automated SQL error self-correction
+- Multilingual translation between Kannada and English
+- Cyber threat IP analysis
+- Automatic chart generation for aggregated data
 
-```mermaid
-graph TD;
-	__start__([START]):::first
-	translation_input(translation_input)
-	intent_router(intent_router)
-	chat_response(chat_response)
-	query_splitter(query_splitter)
-	generate_sql(generate_sql)
-	execute_sql(execute_sql)
-	self_correct(self_correct)
-	next_query_node(next_query_node)
-	analyze_data(analyze_data)
-	translation_output(translation_output)
-	__end__([END]):::last
+## Tech Stack
 
-	__start__ --> translation_input
-	translation_input --> intent_router
-	
-	intent_router -. CHAT .-> chat_response
-	intent_router -. DATABASE .-> query_splitter
-	
-	chat_response --> translation_output
-	
-	query_splitter --> generate_sql
-	generate_sql --> execute_sql
-	
-	execute_sql -. Retry (Error & Count <= 3) .-> self_correct
-	execute_sql -. Success / Fatal .-> next_query_node
-	self_correct --> execute_sql
-	
-	next_query_node -. More Queries .-> generate_sql
-	next_query_node -. All Queries Complete .-> analyze_data
-	
-	analyze_data --> translation_output
-	translation_output --> __end__
+- Backend: Python, FastAPI, LangGraph, LangChain, Groq LLM, SQLAlchemy, MySQL
+- Frontend: React, Vite, TailwindCSS
 
-	classDef default fill:#f2f0ff,stroke:#6366f1,stroke-width:2px,line-height:1.2;
-	classDef first fill:#10b981,color:#fff,stroke-width:0;
-	classDef last fill:#ef4444,color:#fff,stroke-width:0;
-```
+## Setup Instructions
 
----
+### Backend Setup
 
-## 🧩 LangGraph Node Architecture Breakdown
+1. Navigate to the backend directory:
+   cd backend
 
-| Node | Description |
-| :--- | :--- |
-| **`translation_input`** | Translates incoming user queries (e.g., Kannada to English via Bhashini middleware) and initializes multi-query trackers. |
-| **`intent_router`** | Classifies incoming intent into `CHAT` (general conversation / public intel) or `DATABASE` (secure SQL query generation). |
-| **`chat_response`** | Generates direct conversational responses for public intelligence and general inquiries without querying local DB records. |
-| **`query_splitter`** | Deconstructs compound or multi-part questions into an array of individual analytical sub-queries. |
-| **`generate_sql`** | Maps natural language sub-queries into strict read-only MySQL queries using domain knowledge and DB schema rules. |
-| **`execute_sql`** | Safely executes SQL queries against MySQL database with read-only guardrails and automated 15-row pagination slicing. |
-| **`self_correct`** | Feeds broken SQL and database exception tracebacks back to the LLM to automatically fix syntax/column errors (up to 3 retries). |
-| **`next_query_node`** | Aggregates sub-query execution data and controls loop iteration over multiple queries. |
-| **`analyze_data`** | Synthesizes criminological insights across all query results and produces chart metadata (Pie/Bar). |
-| **`translation_output`** | Formats and outputs the final response payload to the application client. |
+2. Create and activate a virtual environment:
+   python -m venv .venv
+   source .venv/bin/activate
 
----
+3. Install dependencies:
+   pip install -r requirements.txt
 
-## ✨ Key Features
+4. Configure environment variables in backend/.env file:
+   GROQ_API_KEY=your_api_key
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_USER=root
+   DB_PASSWORD=your_password
+   DB_NAME=ksp_db
 
-- **Hybrid Two-Lane Data Architecture**:
-  - **Lane 1 (Public Intel)**: General knowledge, legal definitions, statutory context.
-  - **Lane 2 (Secure Records)**: Read-only access to police records, FIRs, accused profiles, evidence, and officer assignments.
-- **Natural Language to SQL**: Converts complex multi-part questions into optimized MySQL queries.
-- **Automated Self-Correction**: Retries failed SQL queries automatically by analyzing database error messages.
-- **Multilingual Support**: Real-time Kannada-English translation.
-- **Cyber Intelligence Tools**: Threat IP lookups and geolocation analysis.
-- **Dynamic Data Visualization**: Generates Pie and Bar chart metadata automatically based on result distribution.
+5. Run the backend server:
+   uvicorn app.app:app --reload --port 8000
 
----
+### Frontend Setup
 
-## 🛠️ Technology Stack
+1. Navigate to the frontend directory:
+   cd frontend
 
-- **Backend**: Python 3.11+, FastAPI, LangChain, LangGraph, SQLAlchemy, Groq API (GPT-OSS 120B)
-- **Frontend**: React, Vite, TailwindCSS, Lucide Icons, Recharts
-- **Database**: MySQL
+2. Install dependencies:
+   npm install
 
----
-
-## 🚀 Getting Started
-
-### 1. Prerequisites
-- Python 3.11+
-- Node.js & npm
-- MySQL Server
-
-### 2. Environment Setup
-Create a `.env` file in the `backend/` directory:
-```env
-GROQ_API_KEY=your_groq_api_key
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=ksp_db
-```
-
-### 3. Backend Installation
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.app:app --reload --port 8000
-```
-
-### 4. Frontend Installation
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## 📜 License
-
-This repository is maintained for Karnataka State Police investigative AI solutions.
+3. Start the development server:
+   npm run dev
