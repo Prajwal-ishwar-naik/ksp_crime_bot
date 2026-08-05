@@ -438,9 +438,22 @@ export default function Dashboard() {
       setOffset(firstPagePagination?.next_offset || 0);
 
       setMessages((prev) => {
+        let cleanText = data.response || "";
+        let sourceLane = null;
+        try {
+          const parsed = JSON.parse(data.response);
+          if (parsed && typeof parsed === 'object' && 'message' in parsed) {
+            cleanText = parsed.message;
+            sourceLane = parsed.source || null;
+          }
+        } catch (e) {
+          // not JSON, fallback to raw text
+        }
+
         const newMsg = {
           sender: 'ai',
-          text: data.response,
+          text: cleanText,
+          source_lane: sourceLane,
           generated_sql: data.generated_sql,
           sql_results: data.sql_results,
           all_generated_sql: data.all_generated_sql,
@@ -717,15 +730,26 @@ export default function Dashboard() {
                        : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-950 shadow-sm hover:shadow-sm'
                    }`}
                  >
-                  <div className="flex items-center gap-2 mb-2">
-                    <img 
-                      src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Seal_of_Karnataka.svg" 
-                      alt="Karnataka State Police Avatar" 
-                      className="w-5 h-5 object-contain drop-shadow-sm"
-                    />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Aloka Intelligence
-                    </span>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Seal_of_Karnataka.svg" 
+                        alt="Karnataka State Police Avatar" 
+                        className="w-5 h-5 object-contain drop-shadow-sm"
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Aloka Intelligence
+                      </span>
+                    </div>
+                    {msg.source_lane && (
+                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest ${
+                        msg.source_lane === 'db'
+                          ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+                          : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                      }`}>
+                        {msg.source_lane === 'db' ? 'SECURE RECORDS' : 'PUBLIC INTEL'}
+                      </span>
+                    )}
                   </div>
 
                   <div className="prose dark:prose-invert prose-sm max-w-none text-slate-700 dark:text-slate-300">

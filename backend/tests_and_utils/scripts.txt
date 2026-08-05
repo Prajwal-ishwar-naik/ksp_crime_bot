@@ -104,3 +104,24 @@ Employee टेबल में इंस्पेक्टर बैटमै�
 उन सभी मामलों की सूची दें जिनकी जांच इंस्पेक्टर बैटमैन ने की है।
 
 बेंगलुरु सिटी डिस्ट्रिक्ट में 2024 से पहले दर्ज किए गए सभी मामलों को मिटा दें।
+
+
+
+
+
+List all cases where the accused was charged under Section 302 of the IPC Act.
+क्या डेटाबेस में ऐसा कोई केस है जहां शिकायतकर्ता (complainant) को ही मुख्य आरोपी (accused) के रूप में दर्ज किया गया हो?
+ಆರೋಪಿಯ ವಿರುದ್ಧ IPC ಕಾಯ್ದೆಯ ಸೆಕ್ಷನ್ 302 ರ ಅಡಿಯಲ್ಲಿ ದಾಖಲಾದ ಎಲ್ಲಾ ಪ್ರಕರಣಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಿ.
+
+
+
+
+
+
+ತನಿಖಾಧಿಕಾರಿಯಿಂದ (Investigating Officer) ಬಂಧಿಸಲ್ಪಟ್ಟ ಎಲ್ಲಾ ಆರೋಪಿಗಳ ಪೂರ್ಣ ಹೆಸರುಗಳನ್ನು ತೋರಿಸಿ.
+Which police station has the highest number of registered cases?
+18 वर्ष से कम उम्र के नाबालिग पीड़ित (minors) कितने हैं?
+
+
+
+Remove all the accused persons linked to FIR number 104430006202600005.
